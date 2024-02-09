@@ -1,0 +1,11 @@
+version: '3'
+services:
+  app:
+    build:
+      context: https://github.com/vanrellmichell/gxc-HelloWorld.git
+    ports:
+      - "28080:8080"
+  deployer:
+    image: alpine/git
+    # volumes:
+    #   - ./:/app
