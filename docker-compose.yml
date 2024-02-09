@@ -3,8 +3,15 @@ services:
   app:
     build:
       context: https://github.com/vanrellmichell/gxc-HelloWorld.git
+      dockerfile: Dockerfile
+      args:
+        - WAR_PATH=./SignBUS.war
+        - WAR_NAME=SignBUS.war   
     ports:
       - "28080:8080"
+    environment:
+      - WAR_PATH=./SignBUS.war
+      - WAR_NAME=SignBUS.war
   deployer:
     image: alpine/git
     # volumes:
