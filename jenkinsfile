@@ -1,0 +1,114 @@
+pipeline {
+    agent any
+    parameters {
+            choice(
+                name: 'TypeBuild',
+                choices: ['Build','Rebuild','Not Build'],
+                description: 'Tipo de Build'
+            )           
+            // choice(
+            //     name: 'TypeDeploy',
+            //     choices: ['deploy','replace'],
+            //     description: 'Tipo de Deploy'
+            // )            
+        }
+
+    environment {
+        KB_PATH='C:\\Models\\Gx18\\U5\\HelloWorld'
+        MAIN_OBJECT='DeploymentUnit1'
+        PROJECT_FULL_PATH ='C:\\Models\\Gx18\\U5\\HelloWorld\\JavaPostgreSQL002\\web\\HelloWorld.gxdproj'
+        PROJECT_NAME='HelloWorld'
+        APP_NAME='HelloWorld'
+        ADDITIONALS_PATH='C:\\Models\\Gx18\\U5\\HelloWorld\\JavaPostgreSQL002\\Web\\DeploymentUnit1_user.gxdproj'
+        WAR_PATH='.\\..\\..\\HelloWorld.war'
+        WAR_DEPLOY_DIR='C:\\Models\\Gx18\\U5\\HelloWorld\\JavaPostgreSQL002\\Deploy\\Local\\HelloWorld.war'
+        WAR_NAME='HelloWorld.war'
+        WAR_PATH_REMOTE='/tmp/'
+        REMOTE_HOST='genexus@10.253.12.6'
+    }
+
+    stages {
+
+        stage('Update KB') {
+            steps {
+                dir('scripts/18') {
+                    echo 'Updating KB...'
+                    bat 'call UpdateKB.bat "%KB_PATH%"'
+                }
+            }
+        }
+
+        stage('Build KB') {
+            when {
+                expression { params.TypeBuild == 'Build' }
+            }            
+            steps {
+                dir('scripts/18') {
+                    echo 'Compiling classes with Build...'
+                    bat 'call BuildKB.bat "%KB_PATH%" "%MAIN_OBJECT%"'
+                }
+            }
+        }
+
+        stage('Rebuild KB') {
+            when {
+                expression { params.TypeBuild == 'Rebuild' }
+            }               
+            steps {
+                dir('scripts/18') {
+                    echo 'Compiling classes with Rebuild...'
+                    bat 'call RebuildKB.bat "%KB_PATH%" "%MAIN_OBJECT%"'
+                }
+            }
+        }
+
+        stage('Build Artifact') {
+            // when {
+            //     expression { params.TypeBuild == 'Rebuild' }
+            // }                
+            steps {             
+                dir('scripts/18') {
+                    echo 'Building artifact...'
+                    bat 'call BuildWAR.bat "%KB_PATH%" "%PROJECT_FULL_PATH%" "%PROJECT_NAME%" "%APP_NAME%" "%MAIN_OBJECT%" "%ADDITIONALS_PATH%" "%WAR_DEPLOY_DIR%"'
+                }
+            }
+        }
+
+        stage('Commit') {
+            steps {
+                dir('scripts/18') {
+                    withCredentials([gitUsernamePassword(credentialsId: 'jenkins', gitToolName: 'git-tool')]) {
+                        bat 'call GitCommit.bat %WAR_PATH% %WAR_DEPLOY_DIR% %WAR_NAME%'
+                    }
+                }
+
+
+            }
+        }
+     
+
+        // stage('Deploy') {
+        //     when {
+        //         expression { params.TypeDeploy == 'deploy' }
+        //     }               
+        //     steps {
+        //         dir('scripts/18') {
+        //             echo 'Deploying WAR...'
+        //             bat 'call DeployWAR.bat %WAR_PATH% %WAR_PATH_REMOTE% %WAR_NAME% %REMOTE_HOST%'
+        //         }
+        //     }
+        // }
+
+        // stage('Replace') {
+        //     when {
+        //         expression { params.TypeDeploy == 'replace' }
+        //     }               
+        //     steps {
+        //         dir('scripts/18') {
+        //             echo 'Replacing WAR...'
+        //             bat 'call ReplaceWAR.bat %WAR_PATH% %WAR_PATH_REMOTE% %WAR_NAME% %REMOTE_HOST%'
+        //         }
+        //     }
+        // }        
+    }
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="OpenAndBuildAll" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    
+    <Import Project="C:\Program Files (x86)\GeneXus\GeneXus18U5\Genexus.Tasks.targets" />
+    <Import Project="C:\Program Files (x86)\GeneXus\GeneXus18U5\Genexus.Server.Tasks.targets" />
+    <Import Project="C:\Program Files (x86)\GeneXus\GeneXus18U5\GXTest.targets"/>
+    <!-- <Import Project="C:\Program Files (x86)\GeneXus\GeneXus18U5\Packages\KBDoctorCmd.Tasks.targets"/> -->
+    
+    <Target Name="OpenKnowledgeBase">
+        <OpenKnowledgeBase Directory="$(KBPath)" />
+    </Target>
+    
+    <Target Name="BuildOne" DependsOnTargets="OpenKnowledgeBase">
+        <BuildOne ObjectName="$(ObjectName)" />
+    </Target>
+
+    <Target Name="RebuildOne" DependsOnTargets="OpenKnowledgeBase">
+        <BuildOne ObjectName="$(ObjectName)" ForceRebuild="true" />
+    </Target>
+    
+    <Target Name="BuildAll" DependsOnTargets="OpenKnowledgeBase">
+            <BuildAll />
+    </Target>
+    
+    <Target Name="RebuildAll" DependsOnTargets="OpenKnowledgeBase">
+            <RebuildAll />
+            <CloseKnowledgeBase />
+    </Target>
+    
+    <Target Name="Update" DependsOnTargets="OpenKnowledgeBase">
+        <UpdateFromServer
+            Preview="false"
+            UpdateKbProperties="false"
+            ServerUsername="local\mvanrell"
+            ServerPassword="mvanrell123"
+        />
+        <CloseKnowledgeBase />
+    </Target>
+    
+
+</Project>
