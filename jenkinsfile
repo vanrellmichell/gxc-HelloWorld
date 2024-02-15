@@ -6,6 +6,11 @@ pipeline {
                 choices: ['Build','Rebuild','Not Build'],
                 description: 'Tipo de Build'
             )           
+            booleanParam (
+                    name: 'BuildWAR',
+                    defaultValue: false,
+                    description: 'Build WAR?'
+                    )            
             // choice(
             //     name: 'TypeDeploy',
             //     choices: ['deploy','replace'],
@@ -63,9 +68,9 @@ pipeline {
         }
 
         stage('Build Artifact') {
-            // when {
-            //     expression { params.TypeBuild == 'Rebuild' }
-            // }                
+            when {
+                expression { params.BuildWAR == true }
+            }                
             steps {             
                 dir('scripts/18') {
                     echo 'Building artifact...'
