@@ -77,7 +77,7 @@ pipeline {
         stage('Commit') {
             steps {
                 dir('scripts/18') {
-                    withCredentials([gitUsernamePassword(credentialsId: 'jenkins', gitToolName: 'git-tool')]) {
+                    withCredentials([gitUsernamePassword(credentialsId: 'jenkins-key', gitToolName: 'git-tool')]) {
                         bat 'call GitCommit.bat %WAR_PATH% %WAR_DEPLOY_DIR% %WAR_NAME%'
                     }
                 }
